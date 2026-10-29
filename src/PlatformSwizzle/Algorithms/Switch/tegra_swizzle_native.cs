@@ -7,16 +7,8 @@ using System.Threading.Tasks;
 
 namespace ImageLibrary.PlatformSwizzle.Algorithms.Switch
 {
-#if WINDOWS
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct BlockDimX64
-    {
-        public ulong width;
-        public ulong height;
-        public ulong depth;
-    }
-#else
+    // Must match the Rust BlockDim in tegra_swizzle (three u32). Older tegra_swizzle builds used
+    // usize here, which is why this used to be ulong on 64 bit Windows.
     [StructLayout(LayoutKind.Sequential)]
     public struct BlockDimX64
     {
@@ -24,7 +16,6 @@ namespace ImageLibrary.PlatformSwizzle.Algorithms.Switch
         public uint height;
         public uint depth;
     }
-#endif
 
     public class tegra_swizzle_native_x64
     {
@@ -34,51 +25,52 @@ namespace ImageLibrary.PlatformSwizzle.Algorithms.Switch
         private const string DllName_x64 = "libtegra_swizzle";
 #endif
 
+        // Parameter types mirror the Rust FFI: u32 -> uint, usize -> ulong, bool -> 1 byte.
         [DllImport(DllName_x64, EntryPoint = "swizzle_surface")]
-        public static unsafe extern void SwizzleSurface(ulong width, ulong height, ulong depth,
+        public static unsafe extern void SwizzleSurface(uint width, uint height, uint depth,
             byte* source, ulong sourceLength,
             byte* destination, ulong destinationLength,
-            BlockDimX64 blockDim, ulong blockHeightMip0, ulong bytesPerPixel,
-            ulong mipmapCount, ulong arrayCount, bool is_orin);
+            BlockDimX64 blockDim, uint blockHeightMip0, uint bytesPerPixel,
+            uint mipmapCount, uint arrayCount, [MarshalAs(UnmanagedType.U1)] bool is_orin);
 
 
         [DllImport(DllName_x64, EntryPoint = "deswizzle_surface")]
-        public static unsafe extern void DeswizzleSurface(ulong width, ulong height, ulong depth,
+        public static unsafe extern void DeswizzleSurface(uint width, uint height, uint depth,
                 byte* source, ulong sourceLength,
                 byte* destination, ulong destinationLength,
-                BlockDimX64 blockDim, ulong blockHeightMip0, ulong bytesPerPixel,
-                ulong mipmapCount, ulong arrayCount, bool is_orin);
+                BlockDimX64 blockDim, uint blockHeightMip0, uint bytesPerPixel,
+                uint mipmapCount, uint arrayCount, [MarshalAs(UnmanagedType.U1)] bool is_orin);
 
         [DllImport(DllName_x64, EntryPoint = "deswizzled_surface_size")]
-        public static unsafe extern ulong DeswizzleSurfaceSize(ulong width, ulong height, ulong depth,
-            BlockDimX64 blockDim, ulong bytesPerPixel, ulong mipmapCount, ulong arrayCount);
+        public static unsafe extern ulong DeswizzleSurfaceSize(uint width, uint height, uint depth,
+            BlockDimX64 blockDim, uint bytesPerPixel, uint mipmapCount, uint arrayCount);
 
         [DllImport(DllName_x64, EntryPoint = "deswizzled_mip_size")]
-        public static unsafe extern ulong DewizzleSurfaceMipSize(ulong width, ulong height, ulong depth,
-            ulong bytesPerPixel);
+        public static unsafe extern ulong DewizzleSurfaceMipSize(uint width, uint height, uint depth,
+            uint bytesPerPixel);
 
 
         [DllImport(DllName_x64, EntryPoint = "swizzled_surface_size")]
-        public static unsafe extern ulong SwizzleSurfaceSize(ulong width, ulong height, ulong depth,
-            BlockDimX64 blockDim, ulong blockHeightMip0, ulong bytesPerPixel, ulong mipmapCount, ulong arrayCount);
+        public static unsafe extern ulong SwizzleSurfaceSize(uint width, uint height, uint depth,
+            BlockDimX64 blockDim, uint blockHeightMip0, uint bytesPerPixel, uint mipmapCount, uint arrayCount);
 
 
         [DllImport(DllName_x64, EntryPoint = "swizzled_mip_size")]
-        public static unsafe extern ulong SwizzleSurfaceMipSize(ulong width, ulong height, ulong depth,
-                ulong blockHeightMip0, ulong bytesPerPixel);
+        public static unsafe extern ulong SwizzleSurfaceMipSize(uint width, uint height, uint depth,
+                uint blockHeightMip0, uint bytesPerPixel);
 
 
 
         [DllImport(DllName_x64, EntryPoint = "deswizzle_block_linear")]
-        public static unsafe extern void DeswizzleBlockLinear(ulong width, ulong height, ulong depth, byte* source, ulong sourceLength,
-             byte* destination, ulong destinationLength, ulong blockHeight, ulong bytesPerPixel, bool is_orin);
+        public static unsafe extern void DeswizzleBlockLinear(uint width, uint height, uint depth, byte* source, ulong sourceLength,
+             byte* destination, ulong destinationLength, uint blockHeight, uint bytesPerPixel, [MarshalAs(UnmanagedType.U1)] bool is_orin);
 
 
         [DllImport(DllName_x64, EntryPoint = "block_height_mip0")]
-        public static extern ulong BlockHeightMip0(ulong height);
+        public static extern uint BlockHeightMip0(uint height);
 
         [DllImport(DllName_x64, EntryPoint = "mip_block_height")]
-        public static extern ulong MipBlockHeight(ulong mipHeight, ulong blockHeightMip0);
+        public static extern uint MipBlockHeight(uint mipHeight, uint blockHeightMip0);
     }
 
     public class tegra_swizzle_native_x86
@@ -94,14 +86,14 @@ namespace ImageLibrary.PlatformSwizzle.Algorithms.Switch
             byte* source, uint sourceLength,
             byte* destination, uint destinationLength,
             BlockDimX64 blockDim, uint blockHeightMip0, uint bytesPerPixel,
-            uint mipmapCount, uint arrayCount, bool is_orin);
+            uint mipmapCount, uint arrayCount, [MarshalAs(UnmanagedType.U1)] bool is_orin);
 
         [DllImport(DllName_x86, EntryPoint = "deswizzle_surface")]
         public static unsafe extern void DeswizzleSurface(uint width, uint height, uint depth,
             byte* source, uint sourceLength,
             byte* destination, uint destinationLength,
             BlockDimX64 blockDim, uint blockHeightMip0, uint bytesPerPixel,
-            uint mipmapCount, uint arrayCount, bool is_orin);
+            uint mipmapCount, uint arrayCount, [MarshalAs(UnmanagedType.U1)] bool is_orin);
 
         [DllImport(DllName_x86, EntryPoint = "deswizzled_surface_size")]
         public static unsafe extern ulong DeswizzleSurfaceSize(uint width, uint height, uint depth,
@@ -121,7 +113,7 @@ namespace ImageLibrary.PlatformSwizzle.Algorithms.Switch
 
         [DllImport(DllName_x86, EntryPoint = "deswizzle_block_linear")]
         public static unsafe extern void DeswizzleBlockLinear(uint width, uint height, uint depth, byte* source, uint sourceLength,
-             byte* destination, uint destinationLength, uint blockHeight, uint bytesPerPixel, bool is_orin);
+             byte* destination, uint destinationLength, uint blockHeight, uint bytesPerPixel, [MarshalAs(UnmanagedType.U1)] bool is_orin);
 
         [DllImport(DllName_x86, EntryPoint = "mip_block_height")]
         public static extern uint MipBlockHeight(uint mipHeight, uint blockHeightMip0);
